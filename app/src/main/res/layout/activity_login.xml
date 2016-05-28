@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:hint="Email" />
+                android:hint="Email/Username" />
         </android.support.design.widget.TextInputLayout>
 
         <!-- Password Label -->
@@ -48,7 +48,7 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lưu mật khẩu?"
+            android:text="Remember pasword?"
             android:layout_marginTop="5dp"
             android:id="@+id/cb_savepassword"/>
 

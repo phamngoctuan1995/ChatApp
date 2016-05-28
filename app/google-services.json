@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "391542241643",
+    "project_id": "mini-project-2---chat-app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:391542241643:android:565b7f0331625de7",
+        "android_client_info": {
+          "package_name": "com.example.phamngoctuan.miniproject2_chatapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaat0tQ2bUwU5PtqkIHAr1tc8XY_dJlaw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,7 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,11 +19,6 @@ import android.widget.Toast;
 import com.firebase.client.Firebase;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private static final String TAG = "LoginActivity";
-    private static final int REQUEST_SIGNUP = 0;
-    private static final String SAVEPASSWORD_REF = "savepassword_ref";
-
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
@@ -43,8 +39,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isChecked) {
-                    SharedPreferences.Editor editor = getSharedPreferences(SAVEPASSWORD_REF, MODE_PRIVATE).edit();
-                    editor.putBoolean("isSave", isChecked);
+                    SharedPreferences.Editor editor = getSharedPreferences(MyConstant.SETTING_REF, MODE_PRIVATE).edit();
+                    editor.putBoolean("isSaveAccount", isChecked);
                     editor.commit();
                 }
             }
@@ -73,13 +69,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         _logo.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.logo_animation));
 
-        SharedPreferences ref = getSharedPreferences(SAVEPASSWORD_REF, MODE_PRIVATE);
-        Boolean isSave = ref.getBoolean("isSave", false);
+        SharedPreferences ref = getSharedPreferences(MyConstant.SETTING_REF, MODE_PRIVATE);
+        Boolean isSave = ref.getBoolean("isSaveAccount", false);
 
         if (isSave)
         {
-            String email = ref.getString("email", "");
-            String password = ref.getString("password", "");
+            SharedPreferences acc = getSharedPreferences(MyConstant.ACCOUNT_REF, MODE_PRIVATE);
+            String email = acc.getString("email", "");
+            String password = acc.getString("password", "");
             _emailText.setText(email);
             _passwordText.setText(password);
             _savePassword.setChecked(true);
@@ -92,10 +89,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         InitView();
         Firebase.setAndroidContext(getApplicationContext());
+        Intent i = new Intent(this, RegistrationService.class);
+        startService(i);
     }
 
     public void login() {
-        Log.d(TAG, "Login");
+        Log.d("debug", "Login");
 
         if (!validate()) {
             onLoginFailed();
@@ -135,11 +134,14 @@ public class LoginActivity extends AppCompatActivity {
         _loginButton.setEnabled(true);
 
         if (_savePassword.isChecked()) {
-            SharedPreferences.Editor edit = getSharedPreferences(SAVEPASSWORD_REF, MODE_PRIVATE).edit();
-            edit.putBoolean("isSave", true);
-            edit.putString("email", _emailText.getText().toString());
-            edit.putString("password", _passwordText.getText().toString());
-            edit.commit();
+            SharedPreferences.Editor setting = getSharedPreferences(MyConstant.SETTING_REF, MODE_PRIVATE).edit();
+            setting.putBoolean("isSaveAccount", true);
+            setting.commit();
+
+            SharedPreferences.Editor acc = getSharedPreferences(MyConstant.ACCOUNT_REF, MODE_PRIVATE).edit();
+            acc.putString("email", _emailText.getText().toString());
+            acc.putString("password", _passwordText.getText().toString());
+            acc.commit();
         }
     }
 
@@ -155,8 +157,9 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("Enter a valid email address");
+        //if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (email.isEmpty()) {
+            _emailText.setError("Enter a valid  address");
             valid = false;
         } else {
             _emailText.setError(null);

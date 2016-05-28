@@ -2,21 +2,60 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.phamngoctuan.miniproject2_chatapp">
 
+    <permission
+        android:name="com.example.phamngoctuan.miniproject2_chatapp.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.example.phamngoctuan.miniproject2_chatapp.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity"
+        android:supportsRtl="true">
+        <activity
+            android:name=".LoginActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".ChatActivity" />
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.example.phamngoctuan.miniproject2_chatapp" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".RegistrationService"
+            android:exported="false" />
+        <service
+            android:name=".TokenRefreshListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".NotificationsListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".Profile"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
     </application>
 
