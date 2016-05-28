@@ -1,12 +1,17 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,11 +21,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private static final String SAVEPASSWORD_REF = "savepassword_ref";
 
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
     TextView _signupLink;
+    ImageView _logo;
+    CheckBox _savePassword;
 
     private void InitView()
     {
@@ -28,6 +36,19 @@ public class LoginActivity extends AppCompatActivity {
         _passwordText = (EditText) findViewById(R.id.input_password);
         _loginButton = (Button) findViewById(R.id.btn_login);
         _signupLink = (TextView) findViewById(R.id.link_signup);
+        _logo = (ImageView) findViewById(R.id.imv_logo);
+        _savePassword = (CheckBox) findViewById(R.id.cb_savepassword);
+
+        _savePassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked) {
+                    SharedPreferences.Editor editor = getSharedPreferences(SAVEPASSWORD_REF, MODE_PRIVATE).edit();
+                    editor.putBoolean("isSave", isChecked);
+                    editor.commit();
+                }
+            }
+        });
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -45,6 +66,24 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        _logo.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.logo_animation));
+
+        SharedPreferences ref = getSharedPreferences(SAVEPASSWORD_REF, MODE_PRIVATE);
+        Boolean isSave = ref.getBoolean("isSave", false);
+
+        if (isSave)
+        {
+            String email = ref.getString("email", "");
+            String password = ref.getString("password", "");
+            _emailText.setText(email);
+            _passwordText.setText(password);
+            _savePassword.setChecked(true);
+        }
     }
 
     @Override
@@ -94,7 +133,14 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
-        finish();
+
+        if (_savePassword.isChecked()) {
+            SharedPreferences.Editor edit = getSharedPreferences(SAVEPASSWORD_REF, MODE_PRIVATE).edit();
+            edit.putBoolean("isSave", true);
+            edit.putString("email", _emailText.getText().toString());
+            edit.putString("password", _passwordText.getText().toString());
+            edit.commit();
+        }
     }
 
     public void onLoginFailed() {
