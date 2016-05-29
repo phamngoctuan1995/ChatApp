@@ -57,7 +57,7 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         holder._nickname.setText(info._nickname);
         holder._numfollow.setText("" + info._follower);
 
-        if (MyConstant._followMap.containsKey(info._nickname))
+        if (MyConstant._followSet.contains(info._nickname))
         {
             Picasso.with(context).load(R.drawable.ic_follow).into(holder._follow);
         }
@@ -87,10 +87,10 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                     return;
 
                 PersonInfo info = _data.get(position);
-                if (MyConstant._followMap.containsKey(info._nickname))
+                if (MyConstant._followSet.contains(info._nickname))
                 {
                     Picasso.with(context).load(R.drawable.ic_unfollow).into((ImageView) v);
-                    MyConstant._followMap.remove(info._nickname);
+                    MyConstant._followSet.remove(info._nickname);
                     MyConstant._followList.remove(position);
 
                     if (_type == MyConstant.FOLLOW_TAB) {
@@ -102,7 +102,7 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                 {
                     Picasso.with(context).load(R.drawable.ic_follow).into((ImageView) v);
                     MyConstant._followList.add(info);
-                    MyConstant._followMap.put(info._nickname, info);
+                    MyConstant._followSet.add(info._nickname);
 
                     Toast.makeText(context, "Add " + info._name + " to follow list successfully!", Toast.LENGTH_SHORT);
                 }
@@ -135,7 +135,6 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         intent.putExtra("status", info._status);
         intent.putExtra("follower", info._follower);
         intent.putExtra("avatar", info._avatar);
-
         context.startActivity(intent);
     }
 

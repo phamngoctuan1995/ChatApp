@@ -21,9 +21,9 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
             case 0:
                 return new SpojMainFragment("http://www.spoj.com");
             case 1:
+                return new ListPersonFragment(MyConstant._searchList, MyConstant.SEARCH_TAB);
+            case 2:
                 return new ListPersonFragment(MyConstant._followList, MyConstant.FOLLOW_TAB);
-//            case 2:
-//                return new FragmentGridBook(constant.FAVORITE_DATA);
             default:
                 return null;
         }
@@ -36,6 +36,8 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
             case 0:
                 return "Spoj";
             case 1:
+                return "Search";
+            case 2:
                 return "Follow";
             default:
                 return "Tab";

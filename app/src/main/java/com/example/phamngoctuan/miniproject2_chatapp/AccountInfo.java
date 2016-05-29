@@ -1,15 +1,36 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Created by phamngoctuan on 29/05/2016.
  */
 public class AccountInfo {
-    String _password;
-    PersonInfo _info;
-    Map<String, Follow> _follow;
-    Map<String, ChatPrivate> _chatPrivate;
+    String _password, _place, _datejoin, _rank;
+    PersonInfo _info = null;
+    HashMap<String, String> _follow = null;
+    HashMap<String, ChatPrivate> _chatPrivate = null;
+    HashMap<String, String> _problem = null;
+
+    AccountInfo()
+    {
+//        _follow = new HashMap<>();
+//        _chatPrivate = new HashMap<>();
+//        _problem = new HashMap<>();
+    }
+
+    AccountInfo(String pass, String place, String date, String rank
+            , PersonInfo info, HashMap<String, String> fl, HashMap<String, ChatPrivate> cp, HashMap<String, String> pro)
+    {
+        _place = place;
+        _datejoin = date;
+        _rank = rank;
+        _password = pass;
+        _info = info;
+        _follow = fl;
+        _chatPrivate = cp;
+        _problem = pro;
+    }
 }
 
 class PersonInfo
@@ -20,6 +41,7 @@ class PersonInfo
     static int ONLINE = 1;
     static int OFFLINE = 0;
 
+    PersonInfo() {}
     PersonInfo(String name, String nn, String ava, int fl, int stt)
     {
         _name = name;
@@ -30,15 +52,6 @@ class PersonInfo
     }
 }
 
-class Follow
-{
-    String _nickname;
-
-    Follow(String nn)
-    {
-        _nickname = nn;
-    }
-}
 
 class ChatPrivate
 {

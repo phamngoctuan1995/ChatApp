@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,18 +19,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
-import com.firebase.client.utilities.Base64;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 
 public class LoginActivity extends AppCompatActivity implements LoginCallback {
@@ -94,7 +85,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
         if (isSave)
         {
             SharedPreferences acc = getSharedPreferences(MyConstant.ACCOUNT_REF, MODE_PRIVATE);
-            String email = acc.getString("email", "");
+            String email = acc.getString("username", "");
             String password = acc.getString("password", "");
             _emailText.setText(email);
             _passwordText.setText(password);
@@ -107,7 +98,6 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         InitView();
-        Firebase.setAndroidContext(getApplicationContext());
         Intent i = new Intent(this, RegistrationService.class);
         startService(i);
     }
@@ -147,7 +137,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
     @Override
     public void onLoginSuccess() {
         Log.d("debug", "Login success");
-        Toast.makeText(this, "Login success", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Login success", Toast.LENGTH_SHORT).show();
         _loginButton.setEnabled(true);
 
         if (_savePassword.isChecked()) {
@@ -155,15 +145,21 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
             setting.putBoolean("isSaveAccount", true);
             setting.commit();
         }
+
+        String email = _emailText.getText().toString();
+        String password = _passwordText.getText().toString();
+
         SharedPreferences.Editor acc = getSharedPreferences(MyConstant.ACCOUNT_REF, MODE_PRIVATE).edit();
-        acc.putString("email", _emailText.getText().toString());
-        acc.putString("password", _passwordText.getText().toString());
+        acc.putString("username", email);
+        acc.putString("password", password);
         acc.commit();
 
         if(_progressDialog != null)
             _progressDialog.dismiss();
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("username", email);
+        intent.putExtra("password", password);
         startActivity(intent);
     }
 
@@ -234,12 +230,6 @@ class LoginAsynctask extends AsyncTask<Void, Void, Boolean>
                 Element element= document.getElementsByClass("avatar").first();
                 if (element == null)
                     _isSuccess = false;
-
-//                File root = Environment.getExternalStorageDirectory();
-//                File file = new File(root, "webhtml");
-//                FileOutputStream fout = new FileOutputStream(file);
-//                OutputStreamWriter out = new OutputStreamWriter(fout);
-//                out.write(document.outerHtml());
             }
             else
                 _isSuccess = false;

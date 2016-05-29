@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 
 public class ChatActivity extends AppCompatActivity{
@@ -37,8 +36,10 @@ public class ChatActivity extends AppCompatActivity{
             _message = new ArrayList<>();
         else _message.clear();
 
-        _message.add(new ChatRecord("Nguoi gui", 0));
-        _message.add(new ChatRecord("Nguoi nhan", 1));
+        _message.add(new ChatRecord("Nguoi gui", 1));
+        _message.add(new ChatRecord("Nguoi nhan", 0));
+
+        _chatInfo = new ChatPrivate("lala", 0);
     }
 
     void getIntentData(Intent intent)
