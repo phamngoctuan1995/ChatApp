@@ -42,6 +42,7 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
         _adapter = new ListPersonAdapter(getContext(), _data, _type);
         _rcv.setAdapter(_adapter);
 
+
         _refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         _refreshLayout.setColorSchemeColors(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
         _refreshLayout.setOnRefreshListener(this);
