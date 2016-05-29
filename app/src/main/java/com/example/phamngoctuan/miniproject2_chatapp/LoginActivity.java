@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,13 +21,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+import com.firebase.client.utilities.Base64;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 
@@ -115,6 +119,12 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
             return;
         }
 
+        if (!MyConstant.checkInternetAvailable(getApplicationContext()))
+        {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         _loginButton.setEnabled(false);
 
         _progressDialog = new ProgressDialog(LoginActivity.this);
@@ -137,6 +147,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
     @Override
     public void onLoginSuccess() {
         Log.d("debug", "Login success");
+        Toast.makeText(this, "Login success", Toast.LENGTH_SHORT).show();
         _loginButton.setEnabled(true);
 
         if (_savePassword.isChecked()) {
@@ -223,6 +234,12 @@ class LoginAsynctask extends AsyncTask<Void, Void, Boolean>
                 Element element= document.getElementsByClass("avatar").first();
                 if (element == null)
                     _isSuccess = false;
+
+//                File root = Environment.getExternalStorageDirectory();
+//                File file = new File(root, "webhtml");
+//                FileOutputStream fout = new FileOutputStream(file);
+//                OutputStreamWriter out = new OutputStreamWriter(fout);
+//                out.write(document.outerHtml());
             }
             else
                 _isSuccess = false;
