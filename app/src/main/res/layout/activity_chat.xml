@@ -7,7 +7,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tv_friendname"
+        android:id="@+id/tv_friendnameChat"
         android:text="My friend"
         android:textSize="15dp"
         android:textStyle="bold"
@@ -20,17 +20,10 @@
         android:id="@+id/tv_status"
         android:text="Online"
         android:textStyle="italic"
-        android:layout_alignRight="@+id/tv_friendname"
-        android:layout_above="@+id/divider1"
+        android:layout_alignRight="@+id/tv_friendnameChat"
+        android:layout_above="@+id/chat_recycler_view"
         android:layout_margin="5dp"
         android:textColor="#00ff00"/>
-    <View
-        android:id="@+id/divider1"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_gravity="bottom"
-        android:background="@color/divider"
-        android:layout_above="@+id/chat_recycler_view"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/chat_recycler_view"
@@ -38,7 +31,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/divider"
         android:layout_margin="5dp"
-        android:layout_below="@+id/tv_friendname"/>
+        android:layout_below="@+id/tv_friendnameChat"/>
 
     <View
         android:id="@+id/divider"
@@ -60,7 +53,7 @@
         android:paddingTop="8dp">
 
         <EditText
-            android:id="@+id/chat_user_message"
+            android:id="@+id/edt_user_message"
             android:layout_marginLeft="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,10 +61,10 @@
             android:textSize="14sp"
             android:hint="Type your message"
             android:gravity="top"
-            android:layout_toStartOf="@+id/sendUserMessage"
+            android:layout_toStartOf="@+id/btn_send_message"
             />
         <Button
-            android:id="@+id/sendUserMessage"
+            android:id="@+id/btn_send_message"
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"
             android:textColor="#FFFFFF"

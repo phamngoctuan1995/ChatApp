@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="@color/colorAccent">
+            app:contentScrim="@color/colorPrimary">
 
             <ImageView
                 android:id="@+id/imgToolbar"
@@ -30,7 +30,7 @@
                 app:layout_collapseMode="parallax" />
 
             <android.support.v7.widget.Toolbar
-                android:id="@+id/technique_three_toolbar"
+                android:id="@+id/profile_toolbar"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_width="match_parent"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -59,7 +59,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_name"
+            android:id="@+id/tv_nameProfile"
             android:text="Pham Ngoc Tuan"
             android:textSize="30dp"
             android:layout_marginTop="160dp"
@@ -67,7 +67,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_nickname"
+            android:id="@+id/tv_nicknameProfile"
             android:text="Tourist"
             android:layout_gravity="center"
             android:layout_marginTop="5dp"

@@ -1,13 +1,16 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -18,13 +21,23 @@ import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 
-public class LoginActivity extends AppCompatActivity {
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
+
+public class LoginActivity extends AppCompatActivity implements LoginCallback {
     EditText _emailText;
     EditText _passwordText;
     Button _loginButton;
     TextView _signupLink;
     ImageView _logo;
     CheckBox _savePassword;
+    ProgressDialog _progressDialog = null;
 
     private void InitView()
     {
@@ -50,6 +63,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 login();
             }
         });
@@ -97,31 +112,20 @@ public class LoginActivity extends AppCompatActivity {
         Log.d("debug", "Login");
 
         if (!validate()) {
-            onLoginFailed();
             return;
         }
 
         _loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
+        _progressDialog = new ProgressDialog(LoginActivity.this);
+        _progressDialog.setIndeterminate(true);
+        _progressDialog.setMessage("Authenticating...");
+        _progressDialog.show();
 
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        // TODO: Implement your own authentication logic here.
-
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+        new LoginAsynctask(this, email, password).execute();
     }
 
     @Override
@@ -130,25 +134,37 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+    @Override
     public void onLoginSuccess() {
+        Log.d("debug", "Login success");
         _loginButton.setEnabled(true);
 
         if (_savePassword.isChecked()) {
             SharedPreferences.Editor setting = getSharedPreferences(MyConstant.SETTING_REF, MODE_PRIVATE).edit();
             setting.putBoolean("isSaveAccount", true);
             setting.commit();
-
-            SharedPreferences.Editor acc = getSharedPreferences(MyConstant.ACCOUNT_REF, MODE_PRIVATE).edit();
-            acc.putString("email", _emailText.getText().toString());
-            acc.putString("password", _passwordText.getText().toString());
-            acc.commit();
         }
+        SharedPreferences.Editor acc = getSharedPreferences(MyConstant.ACCOUNT_REF, MODE_PRIVATE).edit();
+        acc.putString("email", _emailText.getText().toString());
+        acc.putString("password", _passwordText.getText().toString());
+        acc.commit();
+
+        if(_progressDialog != null)
+            _progressDialog.dismiss();
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
+    @Override
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
+        Log.d("debug", "Login failed");
+        _emailText.setError("Authentication failed!");
+//        Toast.makeText(getBaseContext(), "Authentication failed", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
+
+        if (_progressDialog != null)
+            _progressDialog.dismiss();
     }
 
     public boolean validate() {
@@ -165,13 +181,66 @@ public class LoginActivity extends AppCompatActivity {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("Between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 4 || password.length() > 30) {
+            _passwordText.setError("Between 4 and 30 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
         }
 
         return valid;
+    }
+}
+
+interface LoginCallback
+{
+    public void onLoginSuccess();
+    public void onLoginFailed();
+}
+
+class LoginAsynctask extends AsyncTask<Void, Void, Boolean>
+{
+    WeakReference<LoginCallback> _callback;
+    String _username, _password;
+    Boolean _isSuccess;
+
+    LoginAsynctask(LoginCallback cb, String usr, String pw)
+    {
+        _callback = new WeakReference<LoginCallback>(cb);
+        _username = usr;
+        _password = pw;
+        _isSuccess = true;
+    }
+
+    @Override
+    protected Boolean doInBackground(Void... params) {
+        try {
+            Document document = Jsoup.connect("http://www.spoj.com/login").data("login_user", _username)
+                                                                          .data("password", _password).post();
+
+            if (document != null)
+            {
+                Element element= document.getElementsByClass("avatar").first();
+                if (element == null)
+                    _isSuccess = false;
+            }
+            else
+                _isSuccess = false;
+        } catch (Exception e) {
+            _isSuccess = false;
+            e.printStackTrace();
+        }
+        return _isSuccess;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        LoginCallback cb = _callback.get();
+        if (cb != null) {
+            if (aBoolean)
+                cb.onLoginSuccess();
+            else
+                cb.onLoginFailed();
+        }
     }
 }
