@@ -22,12 +22,12 @@ public class MainActivity extends AppCompatActivity {
     {
         tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Spoj"));
-        tabLayout.addTab(tabLayout.newTab().setText("Online"));
-        tabLayout.addTab(tabLayout.newTab().setText("Favorite"));
-        tabLayout.addTab(tabLayout.newTab().setText("Chat"));
+        tabLayout.addTab(tabLayout.newTab().setText("Follow"));
+//        tabLayout.addTab(tabLayout.newTab().setText("Favorite"));
+//        tabLayout.addTab(tabLayout.newTab().setText("Chat"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        _pagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(), 1);
+        _pagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(), 2);
 
         // Set up the ViewPager with the sections adapter.
         _viewPager = (ViewPager) findViewById(R.id.container);
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 //                _viewPager.setCurrentItem(tab.getPosition());
-                _viewPager.setCurrentItem(0);
+                _viewPager.setCurrentItem(tab.getPosition());
 
             }
 
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
+        MyConstant.initStupData();
         initViewPager();
     }
 
@@ -132,6 +133,5 @@ public class MainActivity extends AppCompatActivity {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
-        startActivity(intent);
     }
 }

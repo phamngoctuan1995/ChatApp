@@ -20,8 +20,8 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case 0:
                 return new SpojMainFragment("http://www.spoj.com");
-//            case 1:
-//                return new FragmentGridBook(constant.OFFLINE_DATA);
+            case 1:
+                return new ListPersonFragment(MyConstant._followList, MyConstant.FOLLOW_TAB);
 //            case 2:
 //                return new FragmentGridBook(constant.FAVORITE_DATA);
             default:
@@ -36,11 +36,7 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
             case 0:
                 return "Spoj";
             case 1:
-                return "Online";
-            case 2:
-                return "Favorite";
-            case 3:
-                return "Chat";
+                return "Follow";
             default:
                 return "Tab";
         }
