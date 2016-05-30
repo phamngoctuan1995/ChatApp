@@ -21,6 +21,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ChatActivity extends AppCompatActivity{
 
@@ -31,20 +32,24 @@ public class ChatActivity extends AppCompatActivity{
     PersonInfo _friendInfo;
     MessageChatAdapter _adapter;
     ArrayList<ChatRecord> _message;
-    ChatPrivate _chatInfo;
+    int _chatPosition;
     Firebase chatRef;
 
     void initChatInfo()
     {
-        if (MyConstant.myAccount._chatPrivate.containsKey(_friendInfo._nickname))
-            _chatInfo = MyConstant.myAccount._chatPrivate.get(_friendInfo._nickname);
-        else
-            _chatInfo = new ChatPrivate(MyConstant.SENDER);
+        HashMap<String, Long> chatPrivate = MyConstant.myAccount._privateChat;
+        if (chatPrivate != null && chatPrivate.containsKey(_friendInfo._nickname)) {
+            _chatPosition = chatPrivate.get(_friendInfo._nickname).intValue();
+        }
+        else {
+            _chatPosition = MyConstant.SENDER;
+            MyConstant.fb_myaccount.child("_privateChat").child(_friendInfo._nickname).setValue(_chatPosition);
+        }
     }
     void initPrivateChat()
     {
         String chatCode;
-        if (_chatInfo._position == MyConstant.SENDER) {
+        if (_chatPosition == MyConstant.SENDER) {
             chatCode = MyConstant.myAccount._info._nickname + "_" + _friendInfo._nickname;
             MyConstant.fb_users.child(_friendInfo._nickname).child("_privateChat")
                     .child(MyConstant.myAccount._info._nickname).setValue(MyConstant.RECIPIENT);
@@ -105,7 +110,7 @@ public class ChatActivity extends AppCompatActivity{
         _messageContainer = (RecyclerView) findViewById(R.id.chat_recycler_view);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         _messageContainer.setLayoutManager(llm);
-        _adapter = new MessageChatAdapter(_message, _chatInfo._position);
+        _adapter = new MessageChatAdapter(_message, _chatPosition);
         _messageContainer.setAdapter(_adapter);
 
         _edtMessage.addTextChangedListener(new TextWatcher() {
@@ -143,7 +148,8 @@ public class ChatActivity extends AppCompatActivity{
                 String text = _edtMessage.getText().toString();
                 if (text.equals(""))
                     return;
-                ChatRecord chat = new ChatRecord(text, _chatInfo._position);
+                _edtMessage.setText("");
+                ChatRecord chat = new ChatRecord(text, _chatPosition);
                 chatRef.push().setValue(chat);
             }
         });

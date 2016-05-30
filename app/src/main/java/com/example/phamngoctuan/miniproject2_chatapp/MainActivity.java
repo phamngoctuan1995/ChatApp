@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity{
 
                 if (activity != null) {
                     Intent intent = new Intent(activity, SearchActivity.class);
-                    intent.putExtra("query", query);
+                    intent.putExtra("query", query.toUpperCase());
                     startActivity(intent);
                 }
                 return false;
@@ -316,7 +316,7 @@ class getAccountAsynctask extends AsyncTask<Void, Void, Void>
             MyConstant.myAccount._info = new PersonInfo();
         MyConstant.myAccount._info = _snapshot.child("_info").getValue(PersonInfo.class);
         MyConstant.myAccount._problem = (HashMap<String, String>) _snapshot.child("_problem").getValue();
-        MyConstant.myAccount._chatPrivate = (HashMap<String, ChatPrivate>) _snapshot.child("_chatPrivate").getValue();
+        MyConstant.myAccount._privateChat = (HashMap<String, Long>) _snapshot.child("_chatPrivate").getValue();
         MyConstant.myAccount._follow = (HashMap<String, String>) _snapshot.child("_follow").getValue();
         return null;
     }

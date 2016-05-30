@@ -70,27 +70,26 @@ public class MyConstant {
         if (myAccount._follow != null)
         {
             for (String key : myAccount._follow.keySet())
-                addFollowList(key);
+                addPersonList(key, _followList);
             makeFollowSet();
         }
 
         _chatList.clear();
-        if (myAccount._chatPrivate != null)
-            for (String key : myAccount._chatPrivate.keySet())
-                addChatList(key);
+        if (myAccount._privateChat != null)
+            for (String key : myAccount._privateChat.keySet())
+                addPersonList(key, _chatList);
 
-        fb_myaccount.child("_chatPrivate").addChildEventListener(new ChildEventListener() {
+        fb_myaccount.child("_privateChat").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (myAccount._chatPrivate == null)
-                    myAccount._chatPrivate = new HashMap<String, ChatPrivate>();
+                if (myAccount._privateChat == null)
+                    myAccount._privateChat = new HashMap<String, Long>();
                 String key = dataSnapshot.getKey();
 
-                if (!myAccount._chatPrivate.containsKey(key)) {
-                    ChatPrivate cp = new ChatPrivate();
-                    cp = dataSnapshot.getValue(ChatPrivate.class);
-                    myAccount._chatPrivate.put(key, cp);
-                    addChatList(key);
+                if (!myAccount._privateChat.containsKey(key)) {
+                    Long position = (Long)dataSnapshot.getValue();
+                    myAccount._privateChat.put(key, position);
+                    addPersonList(key, _chatList);
                 }
             }
 
@@ -116,14 +115,14 @@ public class MyConstant {
         });
     }
 
-    static public void addChatList(String key)
+    static public void addPersonList(String key, final ArrayList<PersonInfo> _list)
     {
         fb_users.child(key).child("_info").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 PersonInfo info = new PersonInfo();
                 info = dataSnapshot.getValue(PersonInfo.class);
-                _chatList.add(info);
+                _list.add(info);
             }
 
             @Override

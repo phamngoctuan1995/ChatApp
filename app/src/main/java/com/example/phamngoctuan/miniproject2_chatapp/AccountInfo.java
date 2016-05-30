@@ -9,7 +9,7 @@ public class AccountInfo {
     String _password, _place, _datejoin, _rank;
     PersonInfo _info = null;
     HashMap<String, String> _follow = null;
-    HashMap<String, ChatPrivate> _chatPrivate = null;
+    HashMap<String, Long> _privateChat = null;
     HashMap<String, String> _problem = null;
 
     AccountInfo()
@@ -20,7 +20,7 @@ public class AccountInfo {
     }
 
     AccountInfo(String pass, String place, String date, String rank
-            , PersonInfo info, HashMap<String, String> fl, HashMap<String, ChatPrivate> cp, HashMap<String, String> pro)
+            , PersonInfo info, HashMap<String, String> fl, HashMap<String, Long> cp, HashMap<String, String> pro)
     {
         _place = place;
         _datejoin = date;
@@ -28,7 +28,7 @@ public class AccountInfo {
         _password = pass;
         _info = info;
         _follow = fl;
-        _chatPrivate = cp;
+        _privateChat = cp;
         _problem = pro;
     }
 }

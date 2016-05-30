@@ -11,10 +11,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
 public class SearchActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
     RecyclerView _rcv;
     SwipeRefreshLayout _refreshLayout;
     ListPersonAdapter _adapter;
+    String _query;
 
     void initView()
     {
@@ -25,6 +30,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         _refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         _refreshLayout.setColorSchemeColors(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
         _refreshLayout.setOnRefreshListener(this);
+
+        setAdapter();
     }
 
     void setAdapter()
@@ -40,6 +47,31 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.search_toolbar);
         setSupportActionBar(toolbar);
+
+        initView();
+
+        Intent intent = getIntent();
+        _query = intent.getStringExtra("query");
+        MyConstant._searchList.clear();
+
+        MyConstant.fb_problems.child(_query).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists())
+                {
+                    for (DataSnapshot person : dataSnapshot.getChildren())
+                    {
+                        MyConstant.addPersonList(person.getKey(), MyConstant._searchList);
+                        _adapter.notifyItemInserted(_adapter.getItemCount() - 1);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
