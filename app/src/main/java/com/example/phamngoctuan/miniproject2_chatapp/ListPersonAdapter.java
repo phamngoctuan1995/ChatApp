@@ -93,6 +93,8 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                     MyConstant._followSet.remove(info._nickname);
                     MyConstant._followList.remove(position);
 
+                    MyConstant.fb_myaccount.child("_follow").child(info._nickname).removeValue();
+
                     if (_type == MyConstant.FOLLOW_TAB) {
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, _data.size());
@@ -103,6 +105,8 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                     Picasso.with(context).load(R.drawable.ic_follow).into((ImageView) v);
                     MyConstant._followList.add(info);
                     MyConstant._followSet.add(info._nickname);
+
+                    MyConstant.fb_myaccount.child("_follow").child(info._nickname).setValue(info._name);
 
                     Toast.makeText(context, "Add " + info._name + " to follow list successfully!", Toast.LENGTH_SHORT);
                 }
@@ -115,6 +119,29 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                 OnItemClickListener(v, position);
             }
         });
+    }
+
+    void addPerson(PersonInfo info)
+    {
+        _data.add(info);
+        notifyItemInserted(getItemCount() - 1);
+    }
+
+    void deletePerson(int position)
+    {
+        if (position >= getItemCount())
+            return;
+
+        PersonInfo info = _data.get(position);
+        _data.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, getItemCount());
+//
+//        if (_type == MyConstant.FOLLOW_TAB)
+//        {
+//            MyConstant._followSet.remove(info._nickname);
+//            MyConstant.fb_myaccount.child("_follow").child(info._nickname).removeValue();
+//        }
     }
 
     @Override

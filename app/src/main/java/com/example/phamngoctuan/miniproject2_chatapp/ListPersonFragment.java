@@ -23,12 +23,12 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
     SwipeRefreshLayout _refreshLayout;
     ListPersonAdapter _adapter;
     ArrayList<PersonInfo> _data;
-    int _type;
+    int _tabType;
 
-    ListPersonFragment(ArrayList<PersonInfo> dt, int t)
+    ListPersonFragment(ArrayList<PersonInfo> dt, int tabType)
     {
         _data = dt;
-        _type = t;
+        _tabType = tabType;
     }
 
     @Override
@@ -39,13 +39,19 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         _rcv.setLayoutManager(llm);
 
-        _adapter = new ListPersonAdapter(getContext(), _data, _type);
+        _adapter = new ListPersonAdapter(getContext(), _data, _tabType);
         _rcv.setAdapter(_adapter);
 
 
         _refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         _refreshLayout.setColorSchemeColors(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
         _refreshLayout.setOnRefreshListener(this);
+
+        if (_tabType == MyConstant.FOLLOW_TAB)
+        {
+
+        }
+
         return rootView;
     }
 

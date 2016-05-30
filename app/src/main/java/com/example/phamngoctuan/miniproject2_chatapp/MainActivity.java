@@ -27,9 +27,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements onPostExecuteCallback{
 
     private ViewPager _viewPager;
     private TabLayout _tabLayout;
@@ -53,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
     {
         _tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         _tabLayout.addTab(_tabLayout.newTab().setText("Spoj"));
-        _tabLayout.addTab(_tabLayout.newTab().setText("Rank"));
         _tabLayout.addTab(_tabLayout.newTab().setText("Follow"));
+        _tabLayout.addTab(_tabLayout.newTab().setText("Chat"));
         _tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         _pagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(), _tabLayout.getTabCount());
@@ -87,18 +91,22 @@ public class MainActivity extends AppCompatActivity {
         final String password = intent.getStringExtra("password");
 
         Firebase account_ref = MyConstant.fb_users.child(username);
+        final WeakReference<MainActivity> activityWeakReference = new WeakReference<MainActivity>(this);
+
         account_ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                MainActivity activity = activityWeakReference.get();
+                if (activity == null)
+                    return;
+
                 if (!dataSnapshot.exists()) {
-                    new registerAccountAsyctask(username, password).execute();
+                    new registerAccountAsyctask(username, password, activity).execute();
                 }
                 else
                 {
-//                    MyConstant.myAccount = new AccountInfo();
-//                    MyConstant.myAccount = dataSnapshot.getValue(AccountInfo.class);
                     Log.d("debug", "Key: " + dataSnapshot.getKey() + "     value: " + dataSnapshot.getValue().toString());
-                    new getAccountAsynctask(dataSnapshot).execute();
+                    new getAccountAsynctask(dataSnapshot, activity).execute();
                 }
             }
 
@@ -118,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
         initFirebase();
 
         Intent intent = getIntent();
+
+//        Intent intent = new Intent(this, LoginActivity.class);
+//        intent.putExtra("username", "nhphuongltv");
+//        intent.putExtra("password", "12345aaA");
 
         if (intent != null)
             getIntentInfo(intent);
@@ -189,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setMessage("Do you want to logout?");
         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                doOnPostExecute(PersonInfo.OFFLINE);
                 startActivity(intent);
                 dialog.dismiss();
             }
@@ -201,16 +214,43 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    public void doOnPostExecute(int status)
+    {
+        MyConstant.fb_myaccount = MyConstant.fb_users.child(MyConstant.myAccount._info._nickname);
+
+        HashMap<String, String> problem = MyConstant.myAccount._problem;
+        MyConstant.myAccount._info._status = status;
+        PersonInfo info = MyConstant.myAccount._info;
+
+        MyConstant.fb_myaccount.child("_info").child("_status").setValue(info._status);
+
+        if (problem != null) {
+            Map<String, Object> update = new HashMap<>();
+            for (String key : problem.keySet())
+                update.put(key + "/" + info._nickname, info._status);
+
+            MyConstant.fb_problems.updateChildren(update);
+        }
+
+    }
+}
+
+interface onPostExecuteCallback
+{
+    void doOnPostExecute(int status);
 }
 
 class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
 {
     String _username, _password;
+    WeakReference<onPostExecuteCallback> _callbackWeakReference;
 
-    registerAccountAsyctask(String user, String pass)
+    registerAccountAsyctask(String user, String pass, onPostExecuteCallback cb)
     {
         _username = user;
         _password = pass;
+        _callbackWeakReference = new WeakReference<onPostExecuteCallback>(cb);
     }
 
     @Override
@@ -221,13 +261,14 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
             Element div = document.getElementById("user-profile-left");
             String avatar = div.child(0).attr("src");
             String name = div.child(1).text();
-            String nickname = div.child(2).text();
+//            String nickname = div.child(2).text();
+            String nickname = _username;
             String place = div.child(3).text();
             String join = div.child(4).text();
             String rank = div.child(5).text();
 
             Element table = document.getElementById("user-profile-tables");
-            Elements td = table.getElementsByTag("td");
+            Elements td = table.getElementsByTag("table").first().getElementsByTag("td");
             HashMap<String, String> problem = new HashMap<>();
             for (Element e : td) {
                 String text = e.text();
@@ -249,15 +290,25 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
         }
         return null;
     }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        onPostExecuteCallback callback = _callbackWeakReference.get();
+        if (callback != null)
+            callback.doOnPostExecute(PersonInfo.ONLINE);
+    }
 }
 
 class getAccountAsynctask extends AsyncTask<Void, Void, Void>
 {
     DataSnapshot _snapshot;
+    WeakReference<onPostExecuteCallback> _callbackWeakReference;
 
-    getAccountAsynctask(DataSnapshot snapshot)
+    getAccountAsynctask(DataSnapshot snapshot, onPostExecuteCallback cb)
     {
         _snapshot = snapshot;
+        _callbackWeakReference = new WeakReference<onPostExecuteCallback>(cb);
     }
 
     @Override
@@ -275,5 +326,13 @@ class getAccountAsynctask extends AsyncTask<Void, Void, Void>
         MyConstant.myAccount._chatPrivate = (HashMap<String, ChatPrivate>) _snapshot.child("_chatPrivate").getValue();
         MyConstant.myAccount._follow = (HashMap<String, String>) _snapshot.child("_follow").getValue();
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        onPostExecuteCallback callback = _callbackWeakReference.get();
+        if (callback != null)
+            callback.doOnPostExecute(PersonInfo.ONLINE);
     }
 }

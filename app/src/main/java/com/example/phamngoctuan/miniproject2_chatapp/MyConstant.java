@@ -23,11 +23,12 @@ public class MyConstant {
     public static Firebase fb_users = null;
     public static Firebase fb_problems = null;
     public static Firebase fb_chats = null;
+    public static Firebase fb_myaccount = null;
     public static AccountInfo myAccount = null;
 
     public static ArrayList<PersonInfo> _searchList = new ArrayList<>();
     public static ArrayList<PersonInfo> _followList = new ArrayList<>();
-    public static ArrayList<PersonInfo> _chat = new ArrayList<>();
+    public static ArrayList<PersonInfo> _chatList = new ArrayList<>();
     public static HashSet<String> _followSet = new HashSet<>();
 
     static boolean checkInternetAvailable(Context context) {
