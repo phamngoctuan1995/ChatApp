@@ -90,9 +90,12 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         int id = item.getItemId();
 
         if (id == R.id.action_profile) {
+            Intent intent = new Intent(this, Profile.class);
+            startActivity(intent);
             return true;
         }
-        if (id == R.id.action_profile) {
+        if (id == R.id.action_logout) {
+            MyConstant.doLogout(this);
             return true;
         }
         return super.onOptionsItemSelected(item);

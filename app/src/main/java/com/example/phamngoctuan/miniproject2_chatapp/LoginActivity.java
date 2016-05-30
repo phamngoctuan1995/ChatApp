@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,8 +69,10 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
 
             @Override
             public void onClick(View v) {
-                // Start the Signup activity
-
+                String url = "http://www.spoj.com/register/";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
             }
         });
     }
@@ -173,6 +176,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
         if (_progressDialog != null)
             _progressDialog.dismiss();
     }
+
 
     public boolean validate() {
         boolean valid = true;

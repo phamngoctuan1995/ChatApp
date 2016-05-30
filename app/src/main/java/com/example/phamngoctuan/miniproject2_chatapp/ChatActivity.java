@@ -69,6 +69,7 @@ public class ChatActivity extends AppCompatActivity{
                 ChatRecord chat = new ChatRecord();
                 chat = dataSnapshot.getValue(ChatRecord.class);
                 _adapter.refillAdapter(chat);
+                _messageContainer.scrollToPosition(_adapter.getItemCount() - 1);
             }
 
             @Override

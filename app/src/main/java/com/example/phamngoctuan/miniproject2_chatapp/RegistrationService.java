@@ -36,7 +36,5 @@ public class RegistrationService extends IntentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        stopSelf();
     }
 }
