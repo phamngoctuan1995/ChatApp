@@ -1,5 +1,6 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -8,18 +9,24 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+
+import java.lang.ref.WeakReference;
 
 public class SearchActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
     RecyclerView _rcv;
     SwipeRefreshLayout _refreshLayout;
     ListPersonAdapter _adapter;
     String _query;
+    ValueEventListener _listener;
 
     void initView()
     {
@@ -54,24 +61,34 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
         _query = intent.getStringExtra("query");
         MyConstant._searchList.clear();
 
-        MyConstant.fb_problems.child(_query).addValueEventListener(new ValueEventListener() {
+        _listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists())
-                {
                     for (DataSnapshot person : dataSnapshot.getChildren())
                     {
-                        MyConstant.addPersonList(person.getKey(), MyConstant._searchList);
-                        _adapter.notifyItemInserted(_adapter.getItemCount() - 1);
+                        try {
+                            if (person.getKey().equals(MyConstant.myAccount._info._nickname))
+                                continue;
+                            MyConstant.addPersonList(person.getKey(), MyConstant._searchList, new WeakReference<ListPersonAdapter>(_adapter));
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                            Log.d("debug", "Exception Searchacti");
+                        }
                     }
-                }
+                else
+                    Toast.makeText(getApplicationContext(), "Sorry, can't find anyone solve this problem...", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
             }
-        });
+        };
+
+        MyConstant.fb_problems.child(_query).addValueEventListener(_listener);
     }
 
     @Override
@@ -103,6 +120,18 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
     @Override
     public void onRefresh() {
+        _refreshLayout.setRefreshing(false);
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyConstant.fb_problems.child(_query).removeEventListener(_listener);
     }
 }

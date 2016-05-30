@@ -23,13 +23,9 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
             case 0:
                 return new SpojMainFragment("http://www.spoj.com");
             case 1:
-                ListPersonFragment _followFragment = new ListPersonFragment(MyConstant._followList, MyConstant.FOLLOW_TAB);
-                MyConstant._followFragment = new WeakReference<ListPersonFragment>(_followFragment);
-                return _followFragment;
+                return new ListPersonFragment(MyConstant._followList, MyConstant.FOLLOW_TAB);
             case 2:
-                ListPersonFragment _chatFragment = new ListPersonFragment(MyConstant._chatList, MyConstant.CHAT_TAB);
-                MyConstant._chatFragment = new WeakReference<ListPersonFragment>(_chatFragment);
-                return _chatFragment;
+                return new ListPersonFragment(MyConstant._chatList, MyConstant.CHAT_TAB);
             default:
                 return null;
         }

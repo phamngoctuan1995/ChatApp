@@ -33,7 +33,9 @@ public class ChatActivity extends AppCompatActivity{
     MessageChatAdapter _adapter;
     ArrayList<ChatRecord> _message;
     int _chatPosition;
-    Firebase chatRef;
+    Firebase _chatRef;
+    Query _query;
+    ChildEventListener _listener;
 
     void initChatInfo()
     {
@@ -60,10 +62,10 @@ public class ChatActivity extends AppCompatActivity{
                     .child(MyConstant.myAccount._info._nickname).setValue(MyConstant.SENDER);
         }
 
-        chatRef = MyConstant.fb_chats.child(chatCode);
-        Query query = chatRef;
-        query.limitToLast(20);
-        query.addChildEventListener(new ChildEventListener() {
+        _chatRef = MyConstant.fb_chats.child(chatCode);
+        _query = _chatRef;
+        _query.limitToLast(20);
+        _listener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 ChatRecord chat = new ChatRecord();
@@ -91,7 +93,9 @@ public class ChatActivity extends AppCompatActivity{
             public void onCancelled(FirebaseError firebaseError) {
 
             }
-        });
+        };
+
+        _query.addChildEventListener(_listener);
     }
 
     void getIntentData(Intent intent)
@@ -151,7 +155,7 @@ public class ChatActivity extends AppCompatActivity{
                     return;
                 _edtMessage.setText("");
                 ChatRecord chat = new ChatRecord(text, _chatPosition);
-                chatRef.push().setValue(chat);
+                _chatRef.push().setValue(chat);
             }
         });
     }
@@ -170,5 +174,17 @@ public class ChatActivity extends AppCompatActivity{
         initChatInfo();
         initView();
         initPrivateChat();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        _query.removeEventListener(_listener);
     }
 }

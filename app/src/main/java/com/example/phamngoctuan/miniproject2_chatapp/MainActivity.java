@@ -1,12 +1,9 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
@@ -15,8 +12,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -78,14 +73,15 @@ public class MainActivity extends AppCompatActivity{
 
             @Override
             public void onPageSelected(int position) {
-                ListPersonFragment fragment = null;
+                ListPersonAdapter adapter = null;
                 if (position == 1)
-                    fragment = MyConstant._followFragment.get();
-                else
-                    if (position == 2)
-                        fragment = MyConstant._chatFragment.get();
-                if (fragment != null)
-                    fragment._adapter.notifyChange();
+                    if (MyConstant._followAdapter != null)
+                        adapter = MyConstant._followAdapter.get();
+                if (position == 2)
+                    if (MyConstant._chatAdapter != null)
+                        adapter = MyConstant._chatAdapter.get();
+                if (adapter != null)
+                    adapter.notifyChange();
             }
 
             @Override
@@ -110,34 +106,23 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
-    private void setAdapter()
-    {
-        _pagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(), _tabLayout.getTabCount());
-        _viewPager.setAdapter(_pagerAdapter);
-    }
-
     private void getIntentInfo(Intent intent)
     {
         final String username = intent.getStringExtra("username");
         final String password = intent.getStringExtra("password");
 
         Firebase account_ref = MyConstant.fb_users.child(username);
-        final WeakReference<MainActivity> activityWeakReference = new WeakReference<MainActivity>(this);
 
         account_ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                MainActivity activity = activityWeakReference.get();
-                if (activity == null)
-                    return;
-
                 if (!dataSnapshot.exists()) {
                     new registerAccountAsyctask(username, password).execute();
                 }
                 else
                 {
                     Log.d("debug", "Key: " + dataSnapshot.getKey() + "     value: " + dataSnapshot.getValue().toString());
-                    new getAccountAsynctask(dataSnapshot).execute();
+                    new getAccountAsynctask(dataSnapshot, username, password).execute();
                 }
             }
 
@@ -164,12 +149,6 @@ public class MainActivity extends AppCompatActivity{
             getIntentInfo(intent);
 
         initViewPager();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        setAdapter();
     }
 
     @Override
@@ -234,11 +213,6 @@ public class MainActivity extends AppCompatActivity{
     }
 }
 
-interface onPostExecuteCallback
-{
-    void doOnPostExecute(int status);
-}
-
 class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
 {
     String _username, _password;
@@ -257,7 +231,6 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
             Element div = document.getElementById("user-profile-left");
             String avatar = div.child(0).attr("src");
             String name = div.child(1).text();
-//            String nickname = div.child(2).text();
             String nickname = _username;
             String place = div.child(3).text();
             String join = div.child(4).text();
@@ -276,9 +249,22 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
             if (problem.size() < 1)
                 problem = null;
 
-            PersonInfo personInfo = new PersonInfo(name, nickname, avatar, 0, PersonInfo.ONLINE);
-            MyConstant.myAccount = new AccountInfo(_password, place, join, rank,
-                    personInfo, null, null, problem);
+            if (MyConstant.myAccount == null) {
+                PersonInfo personInfo = new PersonInfo(name, nickname, avatar, 0, PersonInfo.ONLINE);
+                MyConstant.myAccount = new AccountInfo(_password, place, join, rank,
+                        personInfo, null, null, problem);
+            }
+            else
+            {
+                MyConstant.myAccount._rank = rank;
+                MyConstant.myAccount._datejoin = join;
+                MyConstant.myAccount._password = _password;
+                MyConstant.myAccount._place = place;
+                MyConstant.myAccount._problem = problem;
+                MyConstant.myAccount._info._avatar = avatar;
+                MyConstant.myAccount._info._name = name;
+                MyConstant.myAccount._info._status = PersonInfo.ONLINE;
+            }
 
             Firebase account_ref = MyConstant.fb_users.child(_username);
             account_ref.setValue(MyConstant.myAccount);
@@ -298,25 +284,24 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
 class getAccountAsynctask extends AsyncTask<Void, Void, Void>
 {
     DataSnapshot _snapshot;
+    String _username, _password;
 
-    getAccountAsynctask(DataSnapshot snapshot)
+    getAccountAsynctask(DataSnapshot snapshot, String usr, String pw)
     {
         _snapshot = snapshot;
+        _username = usr;
+        _password = pw;
     }
 
     @Override
     protected Void doInBackground(Void... params) {
         if (MyConstant.myAccount == null)
             MyConstant.myAccount = new AccountInfo();
-        MyConstant.myAccount._password = _snapshot.child("_password").getValue().toString();
-        MyConstant.myAccount._rank = _snapshot.child("_rank").getValue().toString();
-        MyConstant.myAccount._place = _snapshot.child("_place").getValue().toString();
-        MyConstant.myAccount._datejoin = _snapshot.child("_datejoin").getValue().toString();
+
         if (MyConstant.myAccount._info == null)
             MyConstant.myAccount._info = new PersonInfo();
         MyConstant.myAccount._info = _snapshot.child("_info").getValue(PersonInfo.class);
-        MyConstant.myAccount._problem = (HashMap<String, String>) _snapshot.child("_problem").getValue();
-        MyConstant.myAccount._privateChat = (HashMap<String, Long>) _snapshot.child("_chatPrivate").getValue();
+        MyConstant.myAccount._privateChat = (HashMap<String, Long>) _snapshot.child("_privateChat").getValue();
         MyConstant.myAccount._follow = (HashMap<String, String>) _snapshot.child("_follow").getValue();
         return null;
     }
@@ -324,6 +309,6 @@ class getAccountAsynctask extends AsyncTask<Void, Void, Void>
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        MyConstant.doOnPostExecute(PersonInfo.ONLINE);
+        new registerAccountAsyctask(_username, _password).execute();
     }
 }

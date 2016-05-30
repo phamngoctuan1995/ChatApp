@@ -60,11 +60,11 @@
                 android:layout_marginLeft="5dp"/>
 
             <ImageButton
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:id="@+id/imb_card_follow"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:src="@drawable/ic_unfollow"
                 android:scaleType="centerInside"
                 android:background="@null"/>

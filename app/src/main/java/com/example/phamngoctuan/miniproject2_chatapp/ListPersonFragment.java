@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 
@@ -30,6 +31,16 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
         _tabType = tabType;
     }
 
+    void setAdapter()
+    {
+        _adapter = new ListPersonAdapter(getContext(), _data, _tabType);
+        if (_tabType == MyConstant.CHAT_TAB)
+            MyConstant._chatAdapter = new WeakReference<ListPersonAdapter>(_adapter);
+        if (_tabType == MyConstant.FOLLOW_TAB)
+            MyConstant._followAdapter = new WeakReference<ListPersonAdapter>(_adapter);
+        _rcv.setAdapter(_adapter);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.listfriend_fragent, container, false);
@@ -39,8 +50,7 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
         _rcv.setLayoutManager(llm);
 
 
-        _adapter = new ListPersonAdapter(getContext(), _data, _tabType);
-        _rcv.setAdapter(_adapter);
+        setAdapter();
 
         _refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         _refreshLayout.setColorSchemeColors(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);

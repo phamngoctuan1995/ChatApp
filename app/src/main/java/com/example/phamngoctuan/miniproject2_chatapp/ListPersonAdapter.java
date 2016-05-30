@@ -24,6 +24,7 @@ import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by phamngoctuan on 29/05/2016.
@@ -43,7 +44,7 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
 
     public void notifyChange()
     {
-        notifyItemRangeChanged(0, getItemCount() - 1);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -139,9 +140,11 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                             else
                                 i++;
 
-                        ListPersonFragment _followFragment = MyConstant._followFragment.get();
-                        if (_followFragment != null)
-                            _followFragment._adapter.deletePerson(i);
+                        ListPersonAdapter _followAdapter = null;
+                        if (MyConstant._followAdapter != null)
+                            _followAdapter = MyConstant._followAdapter.get();
+                        if (_followAdapter != null)
+                            _followAdapter.deletePerson(i);
                     }
                 }
                 else
@@ -151,6 +154,9 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
 
                     MyConstant._followSet.add(info._nickname);
                     MyConstant.fb_myaccount.child("_follow").child(info._nickname).setValue(info._name);
+
+                    if (MyConstant.myAccount._follow == null)
+                        MyConstant.myAccount._follow = new HashMap<String, String>();
                     MyConstant.myAccount._follow.put(info._nickname, info._name);
 
                     MyConstant.fb_users.child(info._nickname).child("_info").child("_follower")
