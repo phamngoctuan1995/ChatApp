@@ -1,6 +1,5 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -9,14 +8,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+
 import java.util.ArrayList;
 
 public class ChatActivity extends AppCompatActivity{
@@ -27,19 +30,62 @@ public class ChatActivity extends AppCompatActivity{
     RecyclerView _messageContainer;
     PersonInfo _friendInfo;
     MessageChatAdapter _adapter;
-    ArrayList<ChatRecord> _message = null;
+    ArrayList<ChatRecord> _message;
     ChatPrivate _chatInfo;
+    Firebase chatRef;
 
-    void getChatMessage()
+    void initChatInfo()
     {
-        if (_message == null)
-            _message = new ArrayList<>();
-        else _message.clear();
+        if (MyConstant.myAccount._chatPrivate.containsKey(_friendInfo._nickname))
+            _chatInfo = MyConstant.myAccount._chatPrivate.get(_friendInfo._nickname);
+        else
+            _chatInfo = new ChatPrivate(MyConstant.SENDER);
+    }
+    void initPrivateChat()
+    {
+        String chatCode;
+        if (_chatInfo._position == MyConstant.SENDER) {
+            chatCode = MyConstant.myAccount._info._nickname + "_" + _friendInfo._nickname;
+            MyConstant.fb_users.child(_friendInfo._nickname).child("_privateChat")
+                    .child(MyConstant.myAccount._info._nickname).setValue(MyConstant.RECIPIENT);
+        }
+        else {
+            chatCode = _friendInfo._nickname + "_" + MyConstant.myAccount._info._nickname;
+            MyConstant.fb_users.child(_friendInfo._nickname).child("_privateChat")
+                    .child(MyConstant.myAccount._info._nickname).setValue(MyConstant.SENDER);
+        }
 
-        _message.add(new ChatRecord("Nguoi gui", 1));
-        _message.add(new ChatRecord("Nguoi nhan", 0));
+        chatRef = MyConstant.fb_chats.child(chatCode);
+        Query query = chatRef;
+        query.limitToLast(20);
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                ChatRecord chat = new ChatRecord();
+                chat = dataSnapshot.getValue(ChatRecord.class);
+                _adapter.refillAdapter(chat);
+            }
 
-        _chatInfo = new ChatPrivate("lala", 0);
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     void getIntentData(Intent intent)
@@ -49,8 +95,9 @@ public class ChatActivity extends AppCompatActivity{
                 , intent.getIntExtra("status", PersonInfo.OFFLINE));
     }
 
-    void InitView()
+    void initView()
     {
+        _message = new ArrayList<>();
         _tvFriendName = (TextView) findViewById(R.id.tv_friendnameChat);
         _tvStatus = (TextView) findViewById(R.id.tv_status);
         _edtMessage = (EditText) findViewById(R.id.edt_user_message);
@@ -58,6 +105,8 @@ public class ChatActivity extends AppCompatActivity{
         _messageContainer = (RecyclerView) findViewById(R.id.chat_recycler_view);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         _messageContainer.setLayoutManager(llm);
+        _adapter = new MessageChatAdapter(_message, _chatInfo._position);
+        _messageContainer.setAdapter(_adapter);
 
         _edtMessage.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,16 +141,12 @@ public class ChatActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 String text = _edtMessage.getText().toString();
-                if (text == "")
+                if (text.equals(""))
                     return;
-                _adapter.refillAdapter(new ChatRecord(text, _chatInfo._position));
-                _edtMessage.setText("");
-                _messageContainer.scrollToPosition(_adapter.getItemCount() - 1);
+                ChatRecord chat = new ChatRecord(text, _chatInfo._position);
+                chatRef.push().setValue(chat);
             }
         });
-
-        _adapter = new MessageChatAdapter(_message, _chatInfo._position);
-        _messageContainer.setAdapter(_adapter);
     }
 
     @Override
@@ -115,7 +160,8 @@ public class ChatActivity extends AppCompatActivity{
             Toast.makeText(this, "Error!!! Please try again", Toast.LENGTH_SHORT).show();
             finish();
         }
-        getChatMessage();
-        InitView();
+        initChatInfo();
+        initView();
+        initPrivateChat();
     }
 }

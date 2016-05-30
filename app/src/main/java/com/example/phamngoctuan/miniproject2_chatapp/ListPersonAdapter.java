@@ -16,6 +16,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -38,6 +41,11 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         _type = t;
     }
 
+    public void notifyChange()
+    {
+        notifyItemRangeChanged(0, getItemCount() - 1);
+    }
+
     @Override
     public PersonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item_cardview, parent, false);
@@ -58,13 +66,17 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         holder._numfollow.setText("" + info._follower);
 
         if (MyConstant._followSet.contains(info._nickname))
-        {
             Picasso.with(context).load(R.drawable.ic_follow).into(holder._follow);
-        }
-        else
-        {
+        else {
+//            if (_type == MyConstant.FOLLOW_TAB)
+//            {
+//                _data.remove(position);
+//                notifyItemRemoved(position);
+//                return;
+//            }
             Picasso.with(context).load(R.drawable.ic_unfollow).into(holder._follow);
         }
+
 
         if (info._status == PersonInfo.ONLINE)
         {
@@ -86,28 +98,77 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                 if (context == null)
                     return;
 
-                PersonInfo info = _data.get(position);
+                final PersonInfo info = _data.get(position);
+
                 if (MyConstant._followSet.contains(info._nickname))
                 {
                     Picasso.with(context).load(R.drawable.ic_unfollow).into((ImageView) v);
+
                     MyConstant._followSet.remove(info._nickname);
-                    MyConstant._followList.remove(position);
 
                     MyConstant.fb_myaccount.child("_follow").child(info._nickname).removeValue();
+                    MyConstant.myAccount._follow.remove(info._nickname);
+
+                    MyConstant.fb_users.child(info._nickname).child("_info").child("_follower")
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Long follower = (Long) dataSnapshot.getValue();
+                            follower = follower > 0 ? follower - 1 : 0;
+                            MyConstant.fb_users.child(info._nickname).child("_info").child("_follower").setValue(follower);
+                            info._follower = follower.intValue();
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
 
                     if (_type == MyConstant.FOLLOW_TAB) {
+                        MyConstant._followList.remove(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, _data.size());
+                    }
+                    else
+                    {
+                        int i = 0;
+                        for (PersonInfo person : MyConstant._followList)
+                            if (person._nickname.equals(info._nickname))
+                                break;
+                            else
+                                i++;
+
+                        ListPersonFragment _followFragment = MyConstant._followFragment.get();
+                        if (_followFragment != null)
+                            _followFragment._adapter.deletePerson(i);
                     }
                 }
                 else
                 {
                     Picasso.with(context).load(R.drawable.ic_follow).into((ImageView) v);
                     MyConstant._followList.add(info);
+
                     MyConstant._followSet.add(info._nickname);
-
                     MyConstant.fb_myaccount.child("_follow").child(info._nickname).setValue(info._name);
+                    MyConstant.myAccount._follow.put(info._nickname, info._name);
 
+                    MyConstant.fb_users.child(info._nickname).child("_info").child("_follower")
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            PersonInfo info = _data.get(position);
+                            Long follower = (Long) dataSnapshot.getValue();
+                            follower += 1;
+                            MyConstant.fb_users.child(info._nickname).child("_info").child("_follower").setValue(follower);
+                            info._follower = follower.intValue();
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
                     Toast.makeText(context, "Add " + info._name + " to follow list successfully!", Toast.LENGTH_SHORT);
                 }
             }
@@ -132,7 +193,7 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         if (position >= getItemCount())
             return;
 
-        PersonInfo info = _data.get(position);
+//        PersonInfo info = _data.get(position);
         _data.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, getItemCount());

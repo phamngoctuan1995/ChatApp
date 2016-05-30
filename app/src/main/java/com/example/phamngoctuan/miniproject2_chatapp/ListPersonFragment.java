@@ -18,12 +18,11 @@ import java.util.ArrayList;
  * Created by phamngoctuan on 29/05/2016.
  */
 public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
-
     RecyclerView _rcv;
     SwipeRefreshLayout _refreshLayout;
-    ListPersonAdapter _adapter;
     ArrayList<PersonInfo> _data;
     int _tabType;
+    ListPersonAdapter _adapter;
 
     ListPersonFragment(ArrayList<PersonInfo> dt, int tabType)
     {
@@ -39,19 +38,13 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         _rcv.setLayoutManager(llm);
 
+
         _adapter = new ListPersonAdapter(getContext(), _data, _tabType);
         _rcv.setAdapter(_adapter);
-
 
         _refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         _refreshLayout.setColorSchemeColors(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
         _refreshLayout.setOnRefreshListener(this);
-
-        if (_tabType == MyConstant.FOLLOW_TAB)
-        {
-
-        }
-
         return rootView;
     }
 
@@ -67,8 +60,9 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
         }, 2000);
     }
 
-    void doOnRefresh()
+    public void doOnRefresh()
     {
-
+        _adapter = new ListPersonAdapter(getContext(), _data, _tabType);
+        _rcv.setAdapter(_adapter);
     }
 }

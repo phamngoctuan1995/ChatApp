@@ -8,8 +8,8 @@
 
     <uses-permission android:name="com.example.phamngoctuan.miniproject2_chatapp.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -21,22 +21,19 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ChatActivity"
-            android:theme="@style/AppTheme">
-        </activity>
-
+            android:theme="@style/AppTheme"></activity>
         <activity
             android:name=".Profile"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MainActivity"
             android:theme="@style/AppTheme"></activity>
-
-        <activity android:name=".MainActivity"
-            android:theme="@style/AppTheme">
-        </activity>
 
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
@@ -66,6 +63,9 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
+
+        <activity android:name=".SearchActivity"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

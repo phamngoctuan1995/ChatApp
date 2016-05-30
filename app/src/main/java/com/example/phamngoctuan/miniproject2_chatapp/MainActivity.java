@@ -1,5 +1,6 @@
 package com.example.phamngoctuan.miniproject2_chatapp;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -33,11 +34,12 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements onPostExecuteCallback{
+public class MainActivity extends AppCompatActivity{
 
     private ViewPager _viewPager;
     private TabLayout _tabLayout;
     MainViewPagerAdapter _pagerAdapter;
+    SearchView _searchView;;
 
 
     private void initFirebase()
@@ -68,6 +70,29 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
         _viewPager.setAdapter(_pagerAdapter);
 
         _viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(_tabLayout));
+        _viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                ListPersonFragment fragment = null;
+                if (position == 1)
+                    fragment = MyConstant._followFragment.get();
+                else
+                    if (position == 2)
+                        fragment = MyConstant._chatFragment.get();
+                if (fragment != null)
+                    fragment._adapter.notifyChange();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         _tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -83,6 +108,12 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+    }
+
+    private void setAdapter()
+    {
+        _pagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(), _tabLayout.getTabCount());
+        _viewPager.setAdapter(_pagerAdapter);
     }
 
     private void getIntentInfo(Intent intent)
@@ -101,12 +132,12 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
                     return;
 
                 if (!dataSnapshot.exists()) {
-                    new registerAccountAsyctask(username, password, activity).execute();
+                    new registerAccountAsyctask(username, password).execute();
                 }
                 else
                 {
                     Log.d("debug", "Key: " + dataSnapshot.getKey() + "     value: " + dataSnapshot.getValue().toString());
-                    new getAccountAsynctask(dataSnapshot, activity).execute();
+                    new getAccountAsynctask(dataSnapshot).execute();
                 }
             }
 
@@ -115,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
 
             }
         });
-
     }
 
     @Override
@@ -125,20 +155,21 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
 
         initFirebase();
 
-        Intent intent = getIntent();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
-//        Intent intent = new Intent(this, LoginActivity.class);
-//        intent.putExtra("username", "nhphuongltv");
-//        intent.putExtra("password", "12345aaA");
+        Intent intent = getIntent();
 
         if (intent != null)
             getIntentInfo(intent);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-
-        MyConstant.initStupData();
         initViewPager();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        setAdapter();
     }
 
     @Override
@@ -146,13 +177,21 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        final SearchView searchView;
         MenuItem search_item = menu.findItem(R.id.action_search);
-        searchView = (SearchView) search_item.getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        _searchView = (SearchView) search_item.getActionView();
+        final WeakReference<MainActivity> activityWeakReference = new WeakReference<MainActivity>(this);
+
+        _searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchView.clearFocus();
+                MainActivity activity = activityWeakReference.get();
+                _searchView.clearFocus();
+
+                if (activity != null) {
+                    Intent intent = new Intent(activity, SearchActivity.class);
+                    intent.putExtra("query", query);
+                    startActivity(intent);
+                }
                 return false;
             }
             @Override
@@ -179,60 +218,19 @@ public class MainActivity extends AppCompatActivity implements onPostExecuteCall
             return true;
         }
         if (id == R.id.action_logout) {
-            doLogout();
+            MyConstant.doLogout(this);
             return true;
         }
-        if (id == R.id.action_search)
-            return true;
+        if (id == R.id.action_search) {
 
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
-        doLogout();
-    }
-
-    void doLogout()
-    {
-        final Intent intent = new Intent(this, LoginActivity.class);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Do you want to logout?");
-        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                doOnPostExecute(PersonInfo.OFFLINE);
-                startActivity(intent);
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    public void doOnPostExecute(int status)
-    {
-        MyConstant.fb_myaccount = MyConstant.fb_users.child(MyConstant.myAccount._info._nickname);
-
-        HashMap<String, String> problem = MyConstant.myAccount._problem;
-        MyConstant.myAccount._info._status = status;
-        PersonInfo info = MyConstant.myAccount._info;
-
-        MyConstant.fb_myaccount.child("_info").child("_status").setValue(info._status);
-
-        if (problem != null) {
-            Map<String, Object> update = new HashMap<>();
-            for (String key : problem.keySet())
-                update.put(key + "/" + info._nickname, info._status);
-
-            MyConstant.fb_problems.updateChildren(update);
-        }
-
+        MyConstant.doLogout(this);
     }
 }
 
@@ -244,13 +242,11 @@ interface onPostExecuteCallback
 class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
 {
     String _username, _password;
-    WeakReference<onPostExecuteCallback> _callbackWeakReference;
 
-    registerAccountAsyctask(String user, String pass, onPostExecuteCallback cb)
+    registerAccountAsyctask(String user, String pass)
     {
         _username = user;
         _password = pass;
-        _callbackWeakReference = new WeakReference<onPostExecuteCallback>(cb);
     }
 
     @Override
@@ -267,7 +263,8 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
             String join = div.child(4).text();
             String rank = div.child(5).text();
 
-            Element table = document.getElementById("user-profile-tables");
+            document = Jsoup.connect("http://vn.spoj.com/users/" + _username).get();
+            Element table = document.getElementsByClass("col-md-9").first();
             Elements td = table.getElementsByTag("table").first().getElementsByTag("td");
             HashMap<String, String> problem = new HashMap<>();
             for (Element e : td) {
@@ -294,21 +291,17 @@ class registerAccountAsyctask extends AsyncTask<Void, Void, Void>
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        onPostExecuteCallback callback = _callbackWeakReference.get();
-        if (callback != null)
-            callback.doOnPostExecute(PersonInfo.ONLINE);
+        MyConstant.doOnPostExecute(PersonInfo.ONLINE);
     }
 }
 
 class getAccountAsynctask extends AsyncTask<Void, Void, Void>
 {
     DataSnapshot _snapshot;
-    WeakReference<onPostExecuteCallback> _callbackWeakReference;
 
-    getAccountAsynctask(DataSnapshot snapshot, onPostExecuteCallback cb)
+    getAccountAsynctask(DataSnapshot snapshot)
     {
         _snapshot = snapshot;
-        _callbackWeakReference = new WeakReference<onPostExecuteCallback>(cb);
     }
 
     @Override
@@ -331,8 +324,6 @@ class getAccountAsynctask extends AsyncTask<Void, Void, Void>
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        onPostExecuteCallback callback = _callbackWeakReference.get();
-        if (callback != null)
-            callback.doOnPostExecute(PersonInfo.ONLINE);
+        MyConstant.doOnPostExecute(PersonInfo.ONLINE);
     }
 }

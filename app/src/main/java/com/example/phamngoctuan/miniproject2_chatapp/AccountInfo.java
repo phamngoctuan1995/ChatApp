@@ -55,13 +55,15 @@ class PersonInfo
 
 class ChatPrivate
 {
-    String _nickname;
     int _position;
 
-    ChatPrivate(String nn, int pos)
+    ChatPrivate(int pos)
     {
-        _nickname = nn;
         _position = pos;
+    }
+
+    public ChatPrivate() {
+
     }
 }
 
@@ -74,5 +76,9 @@ class ChatRecord
     {
         _message = mess;
         _position = pos;
+    }
+
+    public ChatRecord() {
+
     }
 }

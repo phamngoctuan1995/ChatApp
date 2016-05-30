@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by phamngoctuan on 29/05/2016.
  */
@@ -21,9 +23,13 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
             case 0:
                 return new SpojMainFragment("http://www.spoj.com");
             case 1:
-                return new ListPersonFragment(MyConstant._followList, MyConstant.FOLLOW_TAB);
+                ListPersonFragment _followFragment = new ListPersonFragment(MyConstant._followList, MyConstant.FOLLOW_TAB);
+                MyConstant._followFragment = new WeakReference<ListPersonFragment>(_followFragment);
+                return _followFragment;
             case 2:
-                return new ListPersonFragment(MyConstant._chatList, MyConstant.CHAT_TAB);
+                ListPersonFragment _chatFragment = new ListPersonFragment(MyConstant._chatList, MyConstant.CHAT_TAB);
+                MyConstant._chatFragment = new WeakReference<ListPersonFragment>(_chatFragment);
+                return _chatFragment;
             default:
                 return null;
         }

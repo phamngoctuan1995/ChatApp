@@ -15,8 +15,6 @@ import java.util.ArrayList;
 public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private ArrayList<ChatRecord> _chatMessage;
-    private static final int SENDER = 0;
-    private static final int RECIPIENT = 1;
     private int _type;
 
     public MessageChatAdapter(ArrayList<ChatRecord> listOfFireChats, int t) {
@@ -28,9 +26,9 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public int getItemViewType(int position) {
         if(_chatMessage.get(position)._position == _type){
             Log.e("Adapter", " sender");
-            return SENDER;
+            return MyConstant.SENDER;
         }else {
-            return RECIPIENT;
+            return MyConstant.RECIPIENT;
         }
     }
 
@@ -40,11 +38,11 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View view;
         switch (viewType) {
-            case SENDER:
+            case MyConstant.SENDER:
                 view = inflater.inflate(R.layout.sender_message, viewGroup, false);
                 viewHolder= new ViewHolderSender(view);
                 break;
-            case RECIPIENT:
+            case MyConstant.RECIPIENT:
                 view = inflater.inflate(R.layout.recipient_message, viewGroup, false);
                 viewHolder= new ViewHolderRecipient(view);
                 break;
@@ -61,11 +59,11 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
 
         switch (viewHolder.getItemViewType()){
-            case SENDER:
+            case MyConstant.SENDER:
                 ViewHolderSender viewHolderSender = (ViewHolderSender)viewHolder;
                 configureSenderView(viewHolderSender, position);
                 break;
-            case RECIPIENT:
+            case MyConstant.RECIPIENT:
                 ViewHolderRecipient viewHolderRecipient = (ViewHolderRecipient)viewHolder;
                 configureRecipientView(viewHolderRecipient, position);
                 break;
