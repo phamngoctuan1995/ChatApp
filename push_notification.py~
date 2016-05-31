@@ -5,8 +5,8 @@ import sys
 
 MY_API_KEY="AIzaSyATdZeDOnQzCNbelkZ0aQmVA3XeitFh4yg"
 
-messageTitle = "SPOJ chat -Notification"
-messageBody = "Let's pratice :v"
+messageTitle = "First push notification"
+messageBody = "Enjoy"
 
 data={
     "to" : "/topics/my_little_topic",
