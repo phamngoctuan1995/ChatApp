@@ -2,10 +2,7 @@ package com.example.phamngoctuan.miniproject2_chatapp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,7 +17,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -42,13 +38,9 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         _type = t;
     }
 
-    public void notifyChange()
-    {
-        notifyDataSetChanged();
-    }
-
     @Override
-    public PersonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PersonViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item_cardview, parent, false);
 
         PersonViewHolder pvh = new PersonViewHolder(v);
@@ -56,7 +48,8 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
     }
 
     @Override
-    public void onBindViewHolder(PersonViewHolder holder, final int position) {
+    public void onBindViewHolder(PersonViewHolder holder, final int position)
+    {
         final Context context = _contextRef.get();
         if (context == null)
             return;
@@ -69,12 +62,6 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         if (MyConstant._followSet.contains(info._nickname))
             Picasso.with(context).load(R.drawable.ic_follow).into(holder._follow);
         else {
-//            if (_type == MyConstant.FOLLOW_TAB)
-//            {
-//                _data.remove(position);
-//                notifyItemRemoved(position);
-//                return;
-//            }
             Picasso.with(context).load(R.drawable.ic_unfollow).into(holder._follow);
         }
 
@@ -82,12 +69,12 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         if (info._status == PersonInfo.ONLINE)
         {
             holder._status.setText("Online");
-            holder._status.setTextColor(Color.argb(255, 0, 255, 0));
+            holder._status.setTextColor(Color.parseColor("#00A388"));
         }
         else
         {
             holder._status.setText("Offline");
-            holder._status.setTextColor(Color.argb(255, 255, 0, 0));
+            holder._status.setTextColor(Color.parseColor("#FF6138"));
         }
 
         Picasso.with(context).load(info._avatar).error(R.drawable.ic_notification).into(holder._avatar);
@@ -118,6 +105,8 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                             follower = follower > 0 ? follower - 1 : 0;
                             MyConstant.fb_users.child(info._nickname).child("_info").child("_follower").setValue(follower);
                             info._follower = follower.intValue();
+
+                            notifyDataSetChanged();
                         }
 
                         @Override
@@ -168,6 +157,8 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
                             follower += 1;
                             MyConstant.fb_users.child(info._nickname).child("_info").child("_follower").setValue(follower);
                             info._follower = follower.intValue();
+
+                            notifyDataSetChanged();
                         }
 
                         @Override
@@ -212,12 +203,14 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount()
+    {
         return _data.size();
     }
 
     @Override
-    public void OnItemClickListener(View v, int position) {
+    public void OnItemClickListener(View v, int position)
+    {
         Context context = _contextRef.get();
         if (context == null)
             return;
@@ -232,8 +225,8 @@ public class ListPersonAdapter extends RecyclerView.Adapter<ListPersonAdapter.Pe
         context.startActivity(intent);
     }
 
-
-    public static class PersonViewHolder extends RecyclerView.ViewHolder {
+    public static class PersonViewHolder extends RecyclerView.ViewHolder
+    {
         CardView _cv;
         TextView _name;
         TextView _nickname;

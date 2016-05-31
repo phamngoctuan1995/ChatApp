@@ -31,15 +31,16 @@ public class MyConstant {
     public static final int FOLLOW_TAB = 1;
     public static final int CHAT_TAB = 2;
     public static final int SEARCH_TAB = 0;
+    public static final int SENDER = 0;
+    public static final int RECIPIENT = 1;
+
     public static Firebase fb_root = null;
     public static Firebase fb_users = null;
     public static Firebase fb_problems = null;
     public static Firebase fb_chats = null;
     public static Firebase fb_myaccount = null;
     public static AccountInfo myAccount = null;
-    public static final int SENDER = 0;
-    public static final int RECIPIENT = 1;
-    public static ProgressDialog _progressDialog;
+
     public static ChildEventListener _listener = null;
 
     public static ArrayList<PersonInfo> _searchList = new ArrayList<>();
@@ -49,7 +50,11 @@ public class MyConstant {
 
     public static WeakReference<ListPersonAdapter> _followAdapter, _chatAdapter;
 
-    static boolean checkInternetAvailable(Context context) {
+
+    // Static Method
+
+    static boolean checkInternetAvailable(Context context)
+    {
         ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         // ARE WE CONNECTED TO THE NET
         if (conMgr.getActiveNetworkInfo() != null
@@ -70,6 +75,12 @@ public class MyConstant {
     static void initFollow()
     {
         _followList.clear();
+        if (_followAdapter != null)
+        {
+            ListPersonAdapter adapter = _followAdapter.get();
+            if (adapter != null)
+                adapter.notifyDataSetChanged();
+        }
         if (myAccount._follow != null)
         {
             for (String key : myAccount._follow.keySet())
@@ -81,12 +92,19 @@ public class MyConstant {
     static void initChat()
     {
         _chatList.clear();
+        if (_chatAdapter != null)
+        {
+            ListPersonAdapter adapter = _chatAdapter.get();
+            if (adapter != null)
+                adapter.notifyDataSetChanged();
+        }
         if (myAccount._privateChat != null)
             for (String key : myAccount._privateChat.keySet())
                 addPersonList(key, _chatList, _chatAdapter);
     }
 
-    static void initData() {
+    static void initData()
+    {
         initFollow();
         initChat();
 
@@ -209,7 +227,6 @@ public class MyConstant {
         fb_chats = null;
         fb_myaccount = null;
         _followAdapter = _chatAdapter = null;
-        _progressDialog = null;
     }
 
     static public void doOnPostExecute(int status)

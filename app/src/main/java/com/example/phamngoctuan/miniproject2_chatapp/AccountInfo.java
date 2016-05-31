@@ -5,7 +5,8 @@ import java.util.HashMap;
 /**
  * Created by phamngoctuan on 29/05/2016.
  */
-public class AccountInfo {
+public class AccountInfo
+{
     String _password, _place, _datejoin, _rank;
     PersonInfo _info = null;
     HashMap<String, String> _follow = null;
@@ -14,9 +15,6 @@ public class AccountInfo {
 
     AccountInfo()
     {
-//        _follow = new HashMap<>();
-//        _chatPrivate = new HashMap<>();
-//        _problem = new HashMap<>();
     }
 
     AccountInfo(String pass, String place, String date, String rank
@@ -49,21 +47,6 @@ class PersonInfo
         _avatar = ava;
         _follower = fl;
         _status = stt;
-    }
-}
-
-
-class ChatPrivate
-{
-    int _position;
-
-    ChatPrivate(int pos)
-    {
-        _position = pos;
-    }
-
-    public ChatPrivate() {
-
     }
 }
 

@@ -80,7 +80,8 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
     }
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         super.onStart();
         _logo.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.logo_animation));
 
@@ -99,7 +100,8 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         LeakCanary.install(getApplication());
 
@@ -109,7 +111,8 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
         startService(i);
     }
 
-    public void login() {
+    public void login()
+    {
         Log.d("debug", "Login");
 
         if (!validate()) {
@@ -136,13 +139,15 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
     }
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed()
+    {
         // disable going back to the MainActivity
         moveTaskToBack(true);
     }
 
     @Override
-    public void onLoginSuccess() {
+    public void onLoginSuccess()
+    {
         Log.d("debug", "Login success");
         Toast.makeText(getApplicationContext(), "Login success", Toast.LENGTH_SHORT).show();
         _loginButton.setEnabled(true);
@@ -171,7 +176,8 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
     }
 
     @Override
-    public void onLoginFailed() {
+    public void onLoginFailed()
+    {
         Log.d("debug", "Login failed");
         _emailText.setError("Authentication failed!");
 //        Toast.makeText(getBaseContext(), "Authentication failed", Toast.LENGTH_LONG).show();
@@ -181,8 +187,8 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback {
             _progressDialog.dismiss();
     }
 
-
-    public boolean validate() {
+    public boolean validate()
+    {
         boolean valid = true;
 
         String email = _emailText.getText().toString();

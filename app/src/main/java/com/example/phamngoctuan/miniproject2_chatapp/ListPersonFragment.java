@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -42,7 +43,8 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         View rootView = inflater.inflate(R.layout.listfriend_fragent, container, false);
 
         _rcv = (RecyclerView) rootView.findViewById(R.id.rcv_listfriend);
@@ -59,7 +61,8 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     @Override
-    public void onRefresh() {
+    public void onRefresh()
+    {
         doOnRefresh();
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
@@ -67,12 +70,20 @@ public class ListPersonFragment extends Fragment implements SwipeRefreshLayout.O
             public void run() {
                 _refreshLayout.setRefreshing(false);
             }
-        }, 2000);
+        }, 1400);
     }
 
     public void doOnRefresh()
     {
-        _adapter = new ListPersonAdapter(getContext(), _data, _tabType);
-        _rcv.setAdapter(_adapter);
+        if (!MyConstant.checkInternetAvailable(getContext()))
+        {
+            Toast.makeText(getContext(), "No internet connection!!!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (_tabType == MyConstant.FOLLOW_TAB)
+            MyConstant.initFollow();
+        if (_tabType == MyConstant.CHAT_TAB)
+            MyConstant.initChat();
     }
 }

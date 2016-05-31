@@ -2,6 +2,8 @@ package com.example.phamngoctuan.miniproject2_chatapp;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
     ListPersonAdapter _adapter;
     String _query;
     ValueEventListener _listener;
+    Firebase _searchRef;
 
     void initView()
     {
@@ -87,8 +90,8 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
             }
         };
-
-        MyConstant.fb_problems.child(_query).addValueEventListener(_listener);
+        _searchRef = MyConstant.fb_problems.child(_query);
+        _searchRef.addValueEventListener(_listener);
     }
 
     @Override
@@ -120,18 +123,35 @@ public class SearchActivity extends AppCompatActivity implements SwipeRefreshLay
 
     @Override
     public void onRefresh() {
-        _refreshLayout.setRefreshing(false);
+        if (!MyConstant.checkInternetAvailable(getApplicationContext()))
+        {
+            Toast.makeText(this, "No internet connection!!!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        MyConstant._searchList.clear();
+        _adapter.notifyDataSetChanged();
+
+        _searchRef.removeEventListener(_listener);
+        _searchRef.addValueEventListener(_listener);
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                _refreshLayout.setRefreshing(false);
+            }
+        }, 1400);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        finish();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MyConstant.fb_problems.child(_query).removeEventListener(_listener);
+        _searchRef.removeEventListener(_listener);
     }
 }

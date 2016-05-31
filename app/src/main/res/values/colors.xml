@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#DC00FF</color>
-    <color name="colorPrimaryDark">#B22CA9</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#3498DB</color>
+    <color name="colorPrimaryDark">#2980B9</color>
+    <color name="colorAccent">#2C3E50</color>
 
     <color name="bg_user_message">#ffffff</color>
     <color name="primary_dark">#E64A19</color>
@@ -11,5 +11,8 @@
     <color name="divider">#B6B6B6</color>
     <color name="text_color">#FFFFFF</color>
     <color name="text_color_icon">#212121</color>
+
+    <color name="online">#00A388</color>
+    <color name="offline">#FF6138</color>
 
 </resources>

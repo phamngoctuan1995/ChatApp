@@ -17,13 +17,15 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private ArrayList<ChatRecord> _chatMessage;
     private int _type;
 
-    public MessageChatAdapter(ArrayList<ChatRecord> listOfFireChats, int t) {
+    public MessageChatAdapter(ArrayList<ChatRecord> listOfFireChats, int t)
+    {
         _chatMessage = listOfFireChats;
         _type = t;
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public int getItemViewType(int position)
+    {
         if(_chatMessage.get(position)._position == _type){
             Log.e("Adapter", " sender");
             return MyConstant.SENDER;
@@ -33,7 +35,8 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
+    {
         RecyclerView.ViewHolder viewHolder;
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View view;
@@ -54,9 +57,9 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return viewHolder;
     }
 
-
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position)
+    {
 
         switch (viewHolder.getItemViewType()){
             case MyConstant.SENDER:
@@ -70,23 +73,26 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    private void configureSenderView(ViewHolderSender viewHolderSender, int position) {
+    private void configureSenderView(ViewHolderSender viewHolderSender, int position)
+    {
         ChatRecord message = _chatMessage.get(position);
         viewHolderSender.getSenderMessageTextView().setText(message._message);
     }
 
-    private void configureRecipientView(ViewHolderRecipient viewHolderRecipient, int position) {
+    private void configureRecipientView(ViewHolderRecipient viewHolderRecipient, int position)
+    {
         ChatRecord recipientFireMessage = _chatMessage.get(position);
         viewHolderRecipient.getRecipientMessageTextView().setText(recipientFireMessage._message);
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount()
+    {
         return _chatMessage.size();
     }
 
-
-    public void refillAdapter(ChatRecord message){
+    public void refillAdapter(ChatRecord message)
+    {
 
         /*add new message chat to list*/
         _chatMessage.add(message);
@@ -95,23 +101,8 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyItemInserted(getItemCount() - 1);
     }
 
-    public void refillFirsTimeAdapter(ArrayList<ChatRecord> newFireChatMessage){
-
-        _chatMessage.clear();
-        _chatMessage.addAll(newFireChatMessage);
-        notifyItemInserted(getItemCount()-1);
-    }
-
-    public void cleanUp() {
-        _chatMessage.clear();
-    }
-
-
-    /*==============ViewHolder===========*/
-
-    /*ViewHolder for Sender*/
-
-    public class ViewHolderSender extends RecyclerView.ViewHolder {
+    public class ViewHolderSender extends RecyclerView.ViewHolder
+    {
 
         private TextView mSenderMessageTextView;
 
@@ -129,9 +120,8 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-
-    /*ViewHolder for Recipient*/
-    public class ViewHolderRecipient extends RecyclerView.ViewHolder {
+    public class ViewHolderRecipient extends RecyclerView.ViewHolder
+    {
 
         private TextView mRecipientMessageTextView;
 

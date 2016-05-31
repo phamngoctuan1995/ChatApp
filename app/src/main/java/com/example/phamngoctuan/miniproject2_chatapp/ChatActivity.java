@@ -48,6 +48,7 @@ public class ChatActivity extends AppCompatActivity{
             MyConstant.fb_myaccount.child("_privateChat").child(_friendInfo._nickname).setValue(_chatPosition);
         }
     }
+
     void initPrivateChat()
     {
         String chatCode;
@@ -139,12 +140,12 @@ public class ChatActivity extends AppCompatActivity{
         if (_friendInfo._status == PersonInfo.ONLINE)
         {
             _tvStatus.setText("Online");
-            _tvStatus.setTextColor(Color.argb(255, 0, 255, 0));
+            _tvStatus.setTextColor(Color.parseColor("#00A388"));
         }
         else
         {
             _tvStatus.setText("Offline");
-            _tvStatus.setTextColor(Color.argb(255, 255, 0, 0));
+            _tvStatus.setTextColor(Color.parseColor("#FF6138"));
         }
 
         _btnSend.setOnClickListener(new View.OnClickListener() {
@@ -161,7 +162,8 @@ public class ChatActivity extends AppCompatActivity{
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Intent intent = getIntent();
@@ -177,13 +179,15 @@ public class ChatActivity extends AppCompatActivity{
     }
 
     @Override
-    protected void onStop() {
+    protected void onStop()
+    {
         super.onStop();
         finish();
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onDestroy()
+    {
         super.onDestroy();
         _query.removeEventListener(_listener);
     }

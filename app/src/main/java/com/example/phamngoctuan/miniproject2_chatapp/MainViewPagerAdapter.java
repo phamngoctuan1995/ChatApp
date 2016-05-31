@@ -12,13 +12,15 @@ import java.lang.ref.WeakReference;
 public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
     int mNumOfTabs;
 
-    public MainViewPagerAdapter(FragmentManager fm, int NumOfTabs) {
+    public MainViewPagerAdapter(FragmentManager fm, int NumOfTabs)
+    {
         super(fm);
         this.mNumOfTabs = NumOfTabs;
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public Fragment getItem(int position)
+    {
         switch (position) {
             case 0:
                 return new SpojMainFragment("http://www.spoj.com");
@@ -32,7 +34,8 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
+    public CharSequence getPageTitle(int position)
+    {
         switch (position)
         {
             case 0:
@@ -47,7 +50,8 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public int getCount() {
+    public int getCount()
+    {
         return mNumOfTabs;
     }
 }

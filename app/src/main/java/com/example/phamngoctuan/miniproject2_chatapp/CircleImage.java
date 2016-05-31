@@ -18,28 +18,33 @@ import android.widget.ImageView;
  */
 public class CircleImage extends ImageView {
 
-    public CircleImage(Context context) {
+    private int radius;
+    private Shader shader = null;
+
+    public CircleImage(Context context)
+    {
         super(context);
     }
 
-    public CircleImage(Context context, AttributeSet attrs) {
+    public CircleImage(Context context, AttributeSet attrs)
+    {
         super(context, attrs);
     }
 
-    public CircleImage(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CircleImage(Context context, AttributeSet attrs, int defStyleAttr)
+    {
         super(context, attrs, defStyleAttr);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CircleImage(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CircleImage(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
+    {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private int radius;
-    private Shader shader = null;
-
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(Canvas canvas)
+    {
 
         if (getHeight() > getWidth())
             radius = getWidth() / 2;
